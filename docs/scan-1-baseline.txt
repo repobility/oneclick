@@ -1,0 +1,50 @@
+============================================================
+Repobility unified scan #1 — BASELINE (commit acb22b... initial)
+============================================================
+Repo:        https://github.com/repobility/oneclick
+Public URL:  https://repobility.com/scan/2d165948-a4d3-4a0b-ba67-f7fbc05d36c8/
+Submitted:   2026-05-12T19:09:58 +03:00 (epoch 1778602198.609)
+Legacy done: ~7 min later
+
+Combined:    67.6 / 100
+Legacy:      68 / 100   (16 findings)
+9-layer:     in flight at WebFetch time
+
+Severity distribution
+---------------------
+  Critical 0   High 4   Medium 5   Low 7   Info 0
+
+Source breakdown
+----------------
+  Legacy 16   9-layer 0 (not yet reported)   Crowd 0
+
+Layer breakdown
+---------------
+  Quality 10   Security 6
+
+Key findings
+------------
+  HIGH  security   [AUC003] Object-level route lacks visible authorization
+                   GET /api/links/{id}        (main.go:89)
+                   → capability-URL by design (addressed in iter 1).
+
+  HIGH  quality    No test files found
+                   → addressed in iter 1: 20 Go tests (store + handlers + auth).
+
+  MED   security   [AUC001] No Repobility access matrix policy
+                   → addressed in iter 1: .repobility/access.yml with full
+                     endpoint table + scope/owner/tenant markers.
+
+  MED   quality    No CI/CD configuration found
+                   → addressed in iter 2: .github/workflows/ci.yml with
+                     go test matrix + gofmt + go vet + staticcheck +
+                     govulncheck + build.
+
+  LOW   quality    No CSP, no security.txt, no robots.txt, no sitemap.xml,
+                   no humans.txt, no llms.txt
+                   → addressed in iter 3: securityHeaders middleware applies
+                     strict CSP; all five hygiene files served from root paths.
+
+  …plus a handful of medium/low quality findings expected to clear with
+  the iteration commits (dependabot, CODEOWNERS, PR/issue templates,
+  CHANGELOG, ADRs, etc.).
