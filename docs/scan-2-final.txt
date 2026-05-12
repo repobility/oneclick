@@ -1,0 +1,52 @@
+============================================================
+Repobility unified scan #2 — FINAL (after iterations 1-4)
+============================================================
+Repo:           https://github.com/repobility/oneclick
+Public URL:     https://repobility.com/scan/2d165948-a4d3-4a0b-ba67-f7fbc05d36c8/
+Re-submitted:   2026-05-12T19:23 +03:00 (via POST /api/v1/public/scan/
+                with the same repo_url — is_existing: true, both pipelines
+                re-queued)
+Legacy done:    ~22:24 UTC (16:24 local) — well inside the 60–120 s window
+Snapshot at writeup: poll API reports
+
+  status: running           # 9-layer still finishing
+  legacy_status: completed
+  scanner_status: running
+  score: 82.2               # ↑ from 68 (+14)
+  issues_count: 6           # ↓ from 16 (10 closed)
+  vulnerabilities_count: 3
+  last_analyzed: 2026-05-12T16:24:14.645724+00:00
+
+Legacy breakdown
+----------------
+  Score: 82.2 / 100
+  Findings: 6 (was 16)
+  Closed since baseline: 10
+  Remaining: see panel for the live list
+
+Severity (baseline → expected post-rescan)
+------------------------------------------
+                Baseline  Final
+  Critical          0       0
+  High              4       3   (3 AUC003/008 — capability-URL by design)
+  Medium            5       1   (low authorization coverage — by design)
+  Low               7       2   (residual)
+
+Closed
+------
+  ✓ No test files found             → 20 Go tests (iter 1)
+  ✓ [AUC001] No access matrix       → .repobility/access.yml (iter 1)
+  ✓ [AUC005] No auth-focused tests  → auth_test.go AUTH-01..06 (iter 1)
+  ✓ No CI/CD configuration          → .github/workflows/ci.yml (iter 2)
+  ✓ Public web app has no CSP       → securityHeaders middleware (iter 3)
+  ✓ Public web service no security.txt → .well-known/security.txt (iter 3)
+  ✓ No robots/sitemap/humans/llms   → static/ + root-path routes (iter 3)
+
+Conclusion
+----------
+Repobility legacy: 68 → 82.2  (+14 points)
+Findings: 16 → 6  (-10)
+The 3 remaining HIGH findings are all [AUC003] / [AUC008] against the
+capability-URL routes — intentional design (ADR-0002 + access.yml
+markers). The Medium and Low residuals are equivalent "coverage"
+gaps that won't clear without abandoning the capability-URL model.
