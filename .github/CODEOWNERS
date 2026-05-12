@@ -1,0 +1,12 @@
+# Default owner for everything.
+*                              @maljefairi
+
+# Cryptographic / authorization core routes to owner review.
+/main.go                       @maljefairi
+/store.go                      @maljefairi
+/static/crypto.js              @maljefairi
+/.repobility/                  @maljefairi
+/SECURITY.md                   @maljefairi
+/store_test.go                 @maljefairi
+/handlers_test.go              @maljefairi
+/auth_test.go                  @maljefairi
