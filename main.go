@@ -63,7 +63,10 @@ func main() {
 	if dbPath == "" {
 		dbPath = "data/oneclick.db"
 	}
-	_ = os.MkdirAll(filepath.Dir(dbPath), 0o755)
+	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
+		slog.Error("mkdir data dir failed", "path", filepath.Dir(dbPath), "err", err)
+		os.Exit(1)
+	}
 
 	store, err := openStore(dbPath)
 	if err != nil {
@@ -116,7 +119,9 @@ func main() {
 		t := time.NewTicker(60 * time.Second)
 		defer t.Stop()
 		for range t.C {
-			_ = store.Sweep()
+			if err := store.Sweep(); err != nil {
+				slog.Warn("periodic sweep failed", "err", err)
+			}
 		}
 	}()
 
@@ -209,7 +214,9 @@ func handleMeta(store *Store) http.HandlerFunc {
 			return
 		}
 		if rec.ExpiresAt <= time.Now().Unix() {
-			_ = store.Delete(id)
+			if err := store.Delete(id); err != nil {
+				slog.Warn("lazy-delete expired meta failed", "id", id, "err", err)
+			}
 			writeErr(w, http.StatusGone, "expired")
 			return
 		}

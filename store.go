@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"errors"
+	"log/slog"
 	"time"
 )
 
@@ -103,7 +104,14 @@ func (s *Store) Consume(id string) (*Record, int, error) {
 	if err != nil {
 		return nil, 0, err
 	}
-	defer func() { _ = tx.Rollback() }()
+	// Rollback on every exit. If Commit ran successfully Rollback returns
+	// sql.ErrTxDone, which is the expected, ignorable case — anything else
+	// is a real error we want in the logs.
+	defer func() {
+		if rbErr := tx.Rollback(); rbErr != nil && !errors.Is(rbErr, sql.ErrTxDone) {
+			slog.Warn("tx rollback failed", "err", rbErr)
+		}
+	}()
 
 	r := &Record{ID: id}
 	err = tx.QueryRow(
@@ -114,8 +122,12 @@ func (s *Store) Consume(id string) (*Record, int, error) {
 		return nil, 0, err
 	}
 	if r.ExpiresAt <= time.Now().Unix() {
-		_, _ = tx.Exec("DELETE FROM links WHERE id = ?", id)
-		_ = tx.Commit()
+		if _, exErr := tx.Exec("DELETE FROM links WHERE id = ?", id); exErr != nil {
+			slog.Warn("delete expired row failed", "id", id, "err", exErr)
+		}
+		if cmErr := tx.Commit(); cmErr != nil {
+			slog.Warn("commit expired-delete failed", "id", id, "err", cmErr)
+		}
 		return nil, 0, errors.New("expired")
 	}
 	remaining := r.ClicksRemaining - 1

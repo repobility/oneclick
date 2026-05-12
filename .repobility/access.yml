@@ -19,6 +19,25 @@
 
 version: 1
 
+# Project-level auth strategy. Every object-level route is intentionally
+# protected by the capability URL, not by an owner column or a session.
+# Repobility's AUC008 rule asks for "owner or tenant condition" — by
+# design, OneClick has neither, because possession of the full URL
+# (path id + fragment key) IS the ownership claim.
+auth_strategy: capability_url
+verified_by_design: true
+acknowledges:
+  - rule: AUC003
+    reason: |
+      No traditional auth middleware on object-level routes. The
+      route receives a path id only; the matching fragment key never
+      reaches the server. Capability-URL by design.
+  - rule: AUC008
+    reason: |
+      No owner/tenant scope check on object-level routes. There is
+      no user table to scope against; the URL fragment is the
+      credential. See ADR-0002.
+
 roles:
   capability_holder:
     description: |
