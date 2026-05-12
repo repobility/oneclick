@@ -1,0 +1,9 @@
+# OneClick security contact (RFC 9116)
+# https://github.com/repobility/oneclick/blob/main/SECURITY.md
+
+Contact: mailto:mohammedaljefairi@gmail.com
+Expires: 2027-05-12T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://github.com/repobility/oneclick/blob/main/.well-known/security.txt
+Policy: https://github.com/repobility/oneclick/blob/main/SECURITY.md
+Acknowledgments: https://github.com/repobility/oneclick/security/advisories

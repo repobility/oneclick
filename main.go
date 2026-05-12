@@ -93,6 +93,24 @@ func main() {
 
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
+	// Hygiene files at well-known root paths. Each maps to a file
+	// under `static/` so the build artifact stays in one tree.
+	hygiene := []struct {
+		path, file string
+	}{
+		{"/robots.txt", "static/robots.txt"},
+		{"/sitemap.xml", "static/sitemap.xml"},
+		{"/humans.txt", "static/humans.txt"},
+		{"/llms.txt", "static/llms.txt"},
+		{"/.well-known/security.txt", "static/.well-known/security.txt"},
+	}
+	for _, h := range hygiene {
+		h := h // pin the loop variable
+		r.Get(h.path, func(w http.ResponseWriter, req *http.Request) {
+			http.ServeFile(w, req, h.file)
+		})
+	}
+
 	// Periodic sweep.
 	go func() {
 		t := time.NewTicker(60 * time.Second)
@@ -146,9 +164,9 @@ func handleCreate(store *Store) http.HandlerFunc {
 		MaxClicks  int    `json:"max_clicks"`
 	}
 	type res struct {
-		ID                string `json:"id"`
-		ExpiresAt         int64  `json:"expires_at"`
-		ClicksRemaining   int    `json:"clicks_remaining"`
+		ID              string `json:"id"`
+		ExpiresAt       int64  `json:"expires_at"`
+		ClicksRemaining int    `json:"clicks_remaining"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		r.Body = http.MaxBytesReader(w, r.Body, maxBodyBytes)
@@ -205,10 +223,10 @@ func handleMeta(store *Store) http.HandlerFunc {
 
 func handleConsume(store *Store) http.HandlerFunc {
 	type res struct {
-		Ciphertext       string `json:"ciphertext"`
-		IV               string `json:"iv"`
-		ExpiresAt        int64  `json:"expires_at"`
-		ClicksRemaining  int    `json:"clicks_remaining"`
+		Ciphertext      string `json:"ciphertext"`
+		IV              string `json:"iv"`
+		ExpiresAt       int64  `json:"expires_at"`
+		ClicksRemaining int    `json:"clicks_remaining"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
@@ -287,4 +305,3 @@ func generateID() (string, error) {
 	}
 	return base64.RawURLEncoding.EncodeToString(b), nil
 }
-

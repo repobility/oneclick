@@ -1,0 +1,14 @@
+# OneClick — robots policy.
+#
+# This is an interactive one-time-link service, not a content site.
+# There's nothing for crawlers to index — every link is keyed by an
+# unguessable id and only resolvable with the URL fragment key.
+
+User-agent: *
+Disallow: /api/
+Disallow: /l/
+Disallow: /healthz
+
+Allow: /$
+
+Sitemap: /sitemap.xml

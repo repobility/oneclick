@@ -1,0 +1,23 @@
+/* TEAM */
+
+  Lead developer: Mohammed Aljefairi
+  Site:           https://github.com/repobility
+  AI pair-programming: Claude (Anthropic), via Claude Code
+
+/* SITE */
+
+  Last update:  2026/05/12
+  Backend:      Go 1.22+, chi router, html/template, modernc.org/sqlite
+  Frontend:     Server-rendered HTML + vanilla JS for the crypto path
+  Cryptography: Web Crypto API — AES-GCM (256-bit key, 96-bit IV)
+  Software:     Go 1.22+, any modern browser
+
+/* THANKS */
+
+  Prior art in URL shortener / one-time link tooling:
+    - bitly, tinyurl — classic shorteners.
+    - Yopass, PrivateBin, OneTimeSecret — secret-sharing siblings.
+    - Firefox Send (sunset 2020), wormhole.app — file-transfer cousins.
+
+  The NIST AES design team and the Web Crypto API standards group, even
+  though we only consumed their output here.

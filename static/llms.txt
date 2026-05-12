@@ -1,0 +1,48 @@
+# OneClick
+
+> An end-to-end encrypted one-time URL redirect service. The browser
+> generates a 256-bit AES-GCM key, encrypts the destination URL,
+> uploads only the ciphertext, and embeds the key in the URL fragment
+> so the server never sees it.
+
+OneClick is a small, auditable demonstration of how to build a
+one-time-link service where the server is honest-but-curious.
+
+## Design in one sentence
+
+A 32-byte AES-GCM key + 12-byte IV are generated client-side, the
+destination URL is encrypted with the Web Crypto API, only the
+ciphertext + iv + ttl is POSTed to the server, and the key travels
+in the URL fragment (`#k=…`) which browsers never send in HTTP.
+
+## Documentation
+
+- [README.md](README.md): Quickstart, API surface, trust model.
+- [SECURITY.md](SECURITY.md): Threat model and intentional non-goals.
+- [ARCHITECTURE.md](ARCHITECTURE.md): Module-by-module reference.
+- [.repobility/access.yml](.repobility/access.yml): Endpoint-by-endpoint
+  authorization matrix.
+- [docs/adr/](docs/adr/): Architecture Decision Records.
+
+## Source files
+
+- `main.go`: HTTP routes, security headers middleware, template render.
+- `store.go`: SQLite-backed store with atomic click-consume.
+- `templates/`: Go `html/template` files for the compose, view, and
+  gone pages.
+- `static/crypto.js`: Web Crypto API wrapper — AES-GCM keygen,
+  encrypt, decrypt, base64url helpers.
+- `static/compose.js`: Compose flow.
+- `static/view.js`: Viewer flow — peek, confirm, consume, decrypt,
+  redirect.
+- `tests/*_test.go`: Go test suite — store, handlers, capability-URL
+  authorization invariants.
+
+## How to run
+
+    go run .
+    # → http://127.0.0.1:8080
+
+## License
+
+MIT
