@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="no-referrer" />
+    <title>OneClick — encrypted one-time URL redirect</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header>
+        <h1><span class="icon">🔗</span> OneClick</h1>
+        <p class="tagline">
+          Wrap a sensitive URL in a one-time link. The server only stores ciphertext; the AES-GCM
+          key lives in the URL fragment and never reaches our server.
+        </p>
+      </header>
+
+      <section class="card" id="compose-card">
+        <h2>Create a one-time link</h2>
+
+        <label for="url-input">Destination URL</label>
+        <input
+          id="url-input"
+          type="text"
+          inputmode="url"
+          autocomplete="off"
+          maxlength="2000"
+          placeholder="https://docs.internal/secret-doc?token=…"
+        />
+
+        <div class="row">
+          <div>
+            <label for="ttl">Expires after</label>
+            <select id="ttl">
+              <option value="3600">1 hour</option>
+              <option value="86400" selected>24 hours</option>
+              <option value="604800">7 days</option>
+            </select>
+          </div>
+          <div>
+            <label for="clicks">Max clicks</label>
+            <select id="clicks">
+              <option value="1" selected>1 (burn after click)</option>
+              <option value="3">3</option>
+              <option value="10">10</option>
+            </select>
+          </div>
+        </div>
+
+        <button id="btn-create" class="primary" type="button">Encrypt &amp; shorten</button>
+        <p id="err" class="err" hidden></p>
+      </section>
+
+      <section class="card" id="result-card" hidden>
+        <h2>Your one-time link</h2>
+        <p class="muted">
+          Share this URL. Anyone with it can resolve the destination — <strong>once</strong>.
+        </p>
+        <div class="link-row">
+          <input id="result-url" type="text" readonly />
+          <button id="btn-copy" class="primary" type="button">Copy</button>
+        </div>
+        <p id="meta" class="muted small"></p>
+        <button id="btn-new" class="ghost" type="button">New link</button>
+      </section>
+
+      <footer>
+        <p class="muted small">
+          Cipher: AES-GCM (256-bit key, 96-bit IV) via the Web Crypto API.
+          <a href="https://github.com/repobility/oneclick">Source on GitHub</a>.
+        </p>
+      </footer>
+    </main>
+
+    <script src="/static/compose.js"></script>
+  </body>
+</html>

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="no-referrer" />
+    <title>OneClick — open one-time link</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header>
+        <h1><span class="icon">🔗</span> OneClick</h1>
+        <p class="tagline">Someone shared an encrypted one-time link with you.</p>
+      </header>
+
+      <section class="card" id="loading">
+        <h2>Loading…</h2>
+        <p class="muted">Checking that the link is still alive.</p>
+      </section>
+
+      <section class="card" id="confirm" hidden>
+        <h2>One-time link</h2>
+        <p class="muted">
+          Opening this consumes one of <strong id="remaining"></strong> remaining clicks.
+          Once the last click runs, the server copy is destroyed.
+        </p>
+        <p class="muted small" id="expiry"></p>
+        <button id="btn-open" class="primary" type="button">Decrypt &amp; open</button>
+      </section>
+
+      <section class="card" id="redirecting" hidden>
+        <h2>Redirecting…</h2>
+        <p class="muted">Decrypting locally and sending you to the destination.</p>
+        <p class="muted small" id="dest-preview"></p>
+      </section>
+
+      <section class="card error-card" id="error" hidden>
+        <h2 id="err-title">Link unavailable</h2>
+        <p class="muted" id="err-detail"></p>
+        <a href="/" class="ghost as-button">Create your own</a>
+      </section>
+
+      <footer>
+        <p class="muted small">
+          Cipher: AES-GCM via the Web Crypto API.
+          <a href="https://github.com/repobility/oneclick">Source on GitHub</a>.
+        </p>
+      </footer>
+    </main>
+
+    <!-- The Go template renders the id into a <script type="application/json">
+         block. That's a data node, not executable JS, so it doesn't violate
+         the strict CSP (script-src 'self'). view.js reads it on load. -->
+    <script type="application/json" id="bootstrap">{"id": "{{.ID}}"}</script>
+    <script src="/static/crypto.js"></script>
+    <script src="/static/view.js"></script>
+  </body>
+</html>
