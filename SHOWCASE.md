@@ -106,36 +106,62 @@ is what makes the loop closable without a human in the middle.
 
 ---
 
-## 7. Final unified scan
+## 7. Final unified scan — after 6 iterations + push-to-A attempt
 
 Public scan URL: <https://repobility.com/scan/2d165948-a4d3-4a0b-ba67-f7fbc05d36c8/>
 
-Re-submission was via `POST /api/v1/public/scan/` with the same
-`repo_url`. The API returned `is_existing: true` and re-queued both
-the legacy and multi-layer engines on the same token — the freshest
-snapshot renders at the same result URL. Legacy finished in ~60 s.
-
 ```
-                  ┌─ Legacy ─┬─ Findings ─┬─ Δ vs baseline ─┐
-                  │   82.2   │      6     │     +14.2       │
-                  │  / 100   │  (was 16)  │  (10 closed)    │
-                  └──────────┴────────────┴─────────────────┘
+                  ┌─ Combined ─┬─ Legacy ─┬─ Findings ─┬─ Δ vs baseline ─┐
+                  │    83.5    │    84    │     4      │      +16        │
+                  │   / 100    │  / 100   │  (was 16)  │   (12 closed)   │
+                  └────────────┴──────────┴────────────┴─────────────────┘
 
-  Severity (final):   Critical 0 · High 3 · Medium 1 · Low 2 · Info 0
-                      (was 0 / 4 / 5 / 7 — 10 closed, 3 capability-URL
-                       intentional HIGH remain by design)
-  Source breakdown:   Legacy 6 · 9-layer (still running at writeup) · Crowd 0
-  Layers (legacy):    Security 4 · Quality 2
+  Severity (final):   Critical 0 · High 3 · Medium 0 · Low 1 · Info 0
+                      (was 0 / 4 / 5 / 7 — 12 closed, 3 capability-URL
+                       AUC008 + 1 ERR003 noise residual)
+  Layers (legacy):    Security 3 · Quality 1
+  9-layer:            Returned no findings, "—" coverage (the small Go
+                       codebase didn't have enough surface for the
+                       multi-layer engine's atlas / wiring layers)
 ```
 
-The 3 remaining HIGH findings are all `[AUC003]` / `[AUC008]` against
-the capability-URL routes — intentional design choices documented in
-[ADR-0002](docs/adr/0002-capability-url-authorization.md) and the
-`.repobility/access.yml` scope/owner/tenant markers. They cannot
-clear without abandoning the capability-URL model, which is the
-entire point of the showcase.
+The journey landed at **84 / 100 — top of the B band**. The user prompt
+`"push it to A"` triggered iteration 6 (`55b3057`), which lifted the
+per-handler id-shape check into a named `requireCapability`
+middleware so the auth gate is visible to a static analyzer. That
+didn't move the AUC008 rule: it reads `.repobility/access.yml`
+looking for `owner` / `tenant` / `relationship` / `scope` fields with
+non-trivial values, and capability URLs deliberately don't have those.
 
-Per-finding details in [`docs/scan-2-final.txt`](docs/scan-2-final.txt).
+All three `[AUC008]` findings are also **FP-voted ("✓ Recorded")** on
+the unified panel as intentional design. The votes feed Repobility's
+platform-wide false-positive engine — they don't recompute the
+per-scan legacy score on the public-scan flow, but over time they
+train the AI fpr-filter to recognize the capability-URL pattern.
+
+### Why 84 is the structural ceiling
+
+[**repobility/cipherlink**](https://github.com/repobility/cipherlink)
+— the prior showcase using the same capability-URL auth model — hit
+the exact same number, **84 / 100**. Two independent runs of the same
+auth pattern landing on the same Repobility score is strong evidence
+that 84 is what capability URLs cost on the legacy rubric. Reaching
+A (95+) would require either:
+
+1. **Restructuring auth** away from capability URLs toward an
+   owner-bearing model — defeats the design and the entire point of
+   the showcase family.
+2. **Repobility dashboard dismissal** — an owner-only feature on the
+   paid tier that durably suppresses known-by-design findings; out
+   of scope for the public-scan flow.
+
+We did neither. **The honest legacy-pipeline grade for a
+capability-URL service is 84 / 100**, and OneClick now lives at the
+ceiling.
+
+Per-finding details in
+[`docs/scan-2-final.txt`](docs/scan-2-final.txt) and
+[`docs/scan-3-after-middleware.txt`](docs/scan-3-after-middleware.txt).
 
 ---
 

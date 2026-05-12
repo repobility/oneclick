@@ -1,0 +1,64 @@
+============================================================
+Repobility unified scan #3 — after iter 6 (requireCapability middleware)
+============================================================
+Repo:           https://github.com/repobility/oneclick
+Public URL:     https://repobility.com/scan/2d165948-a4d3-4a0b-ba67-f7fbc05d36c8/
+Re-submitted:   2026-05-12 19:00 +03:00
+Legacy done:    ~19:01:11 (UTC) — about 60–90 s
+Final-state:
+
+  Combined:    83.5 / 100
+  Repobility:  84 / 100      (legacy pipeline)
+  9-layer:     no findings, "—" coverage (engine returned no data for
+                              this small Go codebase)
+  Severity:    Critical 0   High 3   Medium 0   Low 1
+  Source:      Legacy 4   9-layer 0   Crowd 0
+  Layers:      Security 3   Quality 1
+
+Findings
+--------
+  HIGH  [AUC008] Object-level policy lacks owner or tenant condition
+                  GET /api/links/{id}        (main.go:92, via requireCapability)
+                  GET /api/links/{id}/meta   (main.go:91, via requireCapability)
+                  GET /l/{id}                (main.go:95, via requireCapability)
+
+         All three are FP-voted ("✓ Recorded") on the unified panel as
+         intentional design — the URL fragment IS the credential. The
+         FP votes feed the platform-wide false-positive engine but do
+         NOT recompute the per-scan legacy score on the public scan.
+
+  LOW   [ERR003] Ignored Error in main.go:300
+         The `json.NewEncoder(w).Encode(v)` in writeJSON ignores the
+         error return. If we returned an error here, the response is
+         already partially written and there's nothing actionable to
+         do — chasing this finding would only add log noise.
+
+What changed across the journey
+-------------------------------
+  v0 baseline                              Legacy 68 / 16 findings  (B-)
+  + iter 1  tests + access.yml             Legacy ?  /  ? findings  (intermediate)
+  + iter 2  CI workflow                                                            ↑
+  + iter 3  CSP middleware + hygiene                                               ↑
+  + iter 4  practices uplift + ADRs        Legacy 82.2 / 6 findings (B)
+  + iter 5  CSP meta + ERR003 fixes        Legacy 84 / 4 findings   (B → cusp)
+  + iter 6  requireCapability middleware   Legacy 84 / 4 findings   (no further gain)
+
+Why we stopped at 84
+--------------------
+Three of the four remaining findings are [AUC008] against the
+capability-URL routes. The rule asks for "owner / tenant / relationship /
+scope" checks on object-level endpoints — exactly the kind of check a
+capability URL deliberately doesn't have, because the URL itself IS
+the credential. The pattern is the same one used by Cipherlink,
+VanishDrop, Yopass, PrivateBin, Firefox Send and wormhole.app.
+
+Cipherlink (the prior Repobility showcase that used the same auth
+model) hit the same ceiling at the exact same number — 84/100. The
+two repos are independent confirmations that 84 is what capability-URL
+costs you on Repobility's grading rubric. Reaching the A band (95+)
+would require restructuring the auth model away from capability URLs
+and toward an owner-bearing one, which is not the design.
+
+The journey is honest: +16 points (68 → 84) by closing 12 of 16
+findings via 6 focused commits. The 3 HIGH AUC008s are the
+architectural ceiling.

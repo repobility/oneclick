@@ -36,12 +36,14 @@ This repo is the **fourth** Repobility-in-the-loop showcase (after [repobility/s
 
 ### Baseline → final
 
-| Metric | Baseline scan (v0) | After iterations |
+| Metric | Baseline scan (v0) | After 6 iterations |
 |---|---|---|
-| Repobility legacy | 68 / 100 · 16 findings | **82+ / 100 · 6 findings** |
-| Severity | 0 Crit · 4 High · 5 Med · 7 Low | dropping toward 0 Crit / Low |
+| Repobility legacy | 68 / 100 · 16 findings | **84 / 100 · 4 findings** *(+16)* |
+| Severity | 0 Crit · 4 High · 5 Med · 7 Low | 0 Crit · 3 High · 0 Med · 1 Low |
 | Tests | 0 | **20 passing** |
 | CI | none | GH Actions matrix · gofmt · vet · staticcheck · govulncheck |
+
+The 3 remaining HIGH findings are all `[AUC008]` against the capability-URL routes — same structural ceiling [repobility/cipherlink](https://github.com/repobility/cipherlink) hits at the **exact same 84/100** number. The URL fragment IS the credential by design; the AUC008 rule asks for "owner / tenant / scope" checks that capability URLs deliberately don't have. All three are FP-voted on the unified panel as intentional design; the votes feed Repobility's platform-wide false-positive engine but don't recompute the per-scan legacy score. See [ADR-0002](docs/adr/0002-capability-url-authorization.md).
 
 ### What Repobility caught, and the commit that closed each finding
 
